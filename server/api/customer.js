@@ -71,12 +71,16 @@ router.post('/signup', async function (req, res) {
 		const newCust = { username: username, password: password, name: name, phone: phone, email: email, active: 0, token: token };
 		const result = await CustomerDAO.insert(newCust);
 		if (result) {
-			res.json({ success: true, message: 'Insert successfully' });
+			const send = await EmailUtil.send(email, result._id, token);
+			if (send) {
+				res.json({ success: true, message: 'Please check email' });
+			} else {
+				res.json({ success: false, message: 'Email failure' });
+			}
 		} else {
 			res.json({ success: false, message: 'Insert failure' });
 		}
 	}
-
 });
 router.post('/active', async function (req, res) {
 	const _id = req.body.id;
